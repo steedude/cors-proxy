@@ -17,10 +17,6 @@ jobs:
           key: ${{ secrets.DEPLOY_SECRET }}
           script: |
             cd cors-proxy/
-            NPM_PID=$(ps aux | grep 'nodemon' | grep -v grep | awk '{print $2}')
-            if [ ! -z "$NPM_PID" ]; then
-              kill $NPM_PID
-            fi
             git pull
             pnpm install
             pnpm run start
