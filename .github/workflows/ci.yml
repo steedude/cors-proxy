@@ -18,6 +18,6 @@ jobs:
           script: |
             cd cors-proxy/
             git pull
-            npm install
+            pnpm install
             pm2 delete cors-proxy
             pm2 start ecosystem.config.js --env production
