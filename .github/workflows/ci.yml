@@ -16,8 +16,8 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SECRET }}
           script: |
+            # pkill -f node 
             cd cors-proxy/
             git pull
-            pkill -f node
             pnpm install
             pnpm run start
