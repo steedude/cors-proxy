@@ -1,11 +1,18 @@
 const http = require('http')
 const httpProxy = require('http-proxy')
-const url = require('url')
+const proxy = httpProxy.createProxyServer({})
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true)
-  const userUrl = parsedUrl.query.url
+  // 如果是一個 OPTIONS 請求，則直接回應
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200)
+    res.end()
+    return
+  }
+  const myURL = new URL(req.url, `http://${req.headers.host}`)
+  // 取得'?url='後面的參數
+  const userUrl = myURL.searchParams.get('url')
 
   if (!userUrl) {
     res.writeHead(200, { 'Content-Type': 'text/plain' })
@@ -13,11 +20,19 @@ const server = http.createServer((req, res) => {
     return
   }
 
-  console.log('User URL:', userUrl)
+  if (userUrl.startsWith('http://') || userUrl.startsWith('https://')) {
+    // 正確格式的 URL，無需進行任何操作
+  } else {
+    // URL 格式不正確
+    res.writeHead(400, { 'Content-Type': 'text/plain' })
+    res.end('Invalid URL format')
+    return
+  }
 
-  const targetHost = new URL(userUrl).hostname
-
-  const proxy = httpProxy.createProxyServer({})
+  // 設置 CORS 頭部
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type')
 
   proxy.on('error', (err, req, res) => {
     console.error('Proxy error:', err)
@@ -28,7 +43,6 @@ const server = http.createServer((req, res) => {
   proxy.web(req, res, {
     target: userUrl,
     changeOrigin: true,
-    targetHost: targetHost,
   })
 })
 
