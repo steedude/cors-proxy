@@ -1,9 +1,9 @@
-const http = require('http')
 const httpProxy = require('http-proxy')
 const proxy = httpProxy.createProxyServer({})
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
+const express = require('express')
+const router = express.Router()
 
-const server = http.createServer((req, res) => {
+router.get('/', async (req, res) => {
   // 如果是一個 OPTIONS 請求，則直接回應
   if (req.method === 'OPTIONS') {
     res.writeHead(200)
@@ -45,8 +45,4 @@ const server = http.createServer((req, res) => {
     changeOrigin: true,
   })
 })
-
-const PORT = process.env.PORT || 3000
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+module.exports = router
