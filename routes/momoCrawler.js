@@ -14,7 +14,6 @@ router.get('/', async (req, res) => {
     const response = await axios.get(productUrl)
     const $ = cheerio.load(response.data)
 
-    // 假设您知道如何在页面上找到价格和图片，这里是示例选择器
     const price = $('#price').text()
     const imageUrl = $('#product-image').attr('src')
 
